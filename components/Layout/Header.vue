@@ -133,11 +133,19 @@
         </transition>
       </div>
 
-      <UIButtonGradient
+      <!-- <UIButtonGradient
         href="https://app.umee.cc/"
         class="ml-6 hidden md:inline-block"
         >Launch App</UIButtonGradient
+      > -->
+
+      <div
+        v-if="account !== undefined"
+        class="ml-6 px-8 py-3 rounded-full text-center"
+        style="background: #eee"
       >
+        {{ account }}
+      </div>
 
       <UILightMode />
       <button
@@ -184,6 +192,31 @@ export default {
     return {
       mobileMenu: false,
       subMenu: false,
+      account: undefined,
+    }
+  },
+  mounted() {
+    window.onload = async () => {
+      if (!window.keplr) {
+        alert('Please install kelpr extension')
+      } else {
+        const chainId = 'umee-1' // 'cosmoshub-4'
+
+        // Enabling before using the Keplr is recommended.
+        // This method will ask the user whether or not to allow access if they haven't visited this website.
+        // Also, it will request user to unlock the wallet if the wallet is locked.
+        await window.keplr.enable(chainId)
+
+        const offlineSigner = window.getOfflineSigner(chainId)
+
+        // You can get the address/public keys by `getAccounts` method.
+        // It can return the array of address/public key.
+        // But, currently, Keplr extension manages only one address/public key pair.
+        // XXX: This line is needed to set the sender address for SigningCosmosClient.
+        const accounts = await offlineSigner.getAccounts()
+
+        this.account = accounts[0].address
+      }
     }
   },
   methods: {
@@ -202,5 +235,9 @@ export default {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+.connect-wallet {
+  background: linear-gradient(to right, #fda9ff, #c9b8ff, #4dffe5);
+  border-radius: 9999px;
 }
 </style>
